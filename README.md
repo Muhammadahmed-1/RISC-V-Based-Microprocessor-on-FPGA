@@ -1,8 +1,2 @@
-This project implements a custom **8-bit RISC-style CPU** on the **DE1-SoC FPGA** using Verilog HDL, along with a supporting **C++ toolchain** that compiles and loads programs to the processor. The design is modular, extensible, and educational — ideal for exploring CPU architecture, instruction execution, and FPGA deployment. 
+This project implements a custom **8-bit RISC-style CPU** on the **DE1-SoC FPGA** using Verilog HDL, along with a supporting **C++ toolchain** that compiles and loads programs to the processor. The design is modular, extensible, and educational ,ideal for exploring CPU architecture, instruction execution, and FPGA deployment. 
 <img width="1440" height="730" alt="image" src="https://github.com/user-attachments/assets/05584f9b-0997-4aa3-a132-e7fcfd59a223" />
-- 5-stage pipelined datapath
-- ALU with multi-input control and flag generation
-- Memory-mapped data and instruction access
-- Two-port register file with programmable writeback
-- Immediate sign and zero extension units
-- Modular design for peripheral interfacing (UART, VGA, etc.)
