@@ -1,5 +1,4 @@
-This project implements a basic 8-bit RISC-style pipelined microprocessor on the DE1-SoC FPGA using Verilog HDL. The processor includes core instruction execution logic, memory access, a register file, and ALU control. The design is modular and extensible, making it suitable for future integration with peripherals such as UART, VGA, and SRAM.
-
+This project implements a custom **8-bit RISC-style CPU** on the **DE1-SoC FPGA** using Verilog HDL, along with a supporting **C++ toolchain** that compiles and loads programs to the processor. The design is modular, extensible, and educational — ideal for exploring CPU architecture, instruction execution, and FPGA deployment. 
 <img width="1440" height="730" alt="image" src="https://github.com/user-attachments/assets/05584f9b-0997-4aa3-a132-e7fcfd59a223" />
 - 5-stage pipelined datapath
 - ALU with multi-input control and flag generation
