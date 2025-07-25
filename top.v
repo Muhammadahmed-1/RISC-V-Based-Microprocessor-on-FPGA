@@ -1,41 +1,54 @@
-module top(
+module top(clock,reset);
     input wire clock,
     input wire reset
-);
-// Control signals (placeholders, to be connected to FSM when implemented)
-wire RFWrite, MemWrite, MemRead, PCWrite, IRload, MDRload, ABLD;
+
+// Control signals from FSM
+wire RFWrite, MemWrite, MemRead, PCWrite, IRload, MDRload, ABLD, ALUoutLD;
 wire [2:0] ALUop;
+wire ALUA, Addrsel, RASel, RegIn;
+wire [2:0] ALU_B;
 
 // Datapath signals
 wire [7:0] PC, ALUout, mem_data_out, reg_dataA, reg_dataB;
-wire [7:0] A_out, B_out, MDR_out, IR_out;
+wire [7:0] A_out, B_out, MDR_out, IR_out, ALUout_reg;
 wire [7:0] M1, M3, M4, M5; // mux outputs
 wire Z, N;
-wire [7:0] ALUout_reg; // Output of ALUout register
-wire ALUoutLD; // Placeholder for ALUout register load control
 
-// Immediate extension logic (stubs)
+// Immediate extension logic
 wire [7:0] Imm4, Imm5, Imm3;
-// Example: assign Imm4 = { {4{IR_out[3]}}, IR_out[3:0] }; // sign-extend 4 bits
-// assign Imm5 = { 3'b000, IR_out[4:0] }; // zero-extend 5 bits
-// assign Imm3 = { 5'b00000, IR_out[2:0] }; // zero-extend 3 bits
-assign Imm4 = 8'b0; // TODO: implement SE/ZE logic
-assign Imm5 = 8'b0; // TODO: implement SE/ZE logic
-assign Imm2 = 8'b0; // TODO: implement SE/ZE logic
-
 // Sign-extend 4 bits (IR_out[3:0]) to 8 bits
 assign Imm4 = { {4{IR_out[3]}}, IR_out[3:0] };
-
-// Zero-extend 5 bits (IR_out[4:0]) to 8 bits
+// Zero-extend 5 bits (IR_out[4:0]) to 8 bits  
 assign Imm5 = { 3'b000, IR_out[4:0] };
-
 // Zero-extend 3 bits (IR_out[2:0]) to 8 bits
 assign Imm3 = { 5'b00000, IR_out[2:0] };
+
+// FSM instantiation
+FSM fsm_inst(
+    .clock(clock),
+    .reset(reset),
+    .RFWrite(RFWrite),
+    .MemWrite(MemWrite),
+    .MemRead(MemRead),
+    .PCWrite(PCWrite),
+    .IRload(IRload),
+    .MDRload(MDRload),
+    .ABLD(ABLD),
+    .ALUoutLD(ALUoutLD),
+    .ALUop(ALUop),
+    .ALUA(ALUA),
+    .ALU_B(ALU_B),
+    .Addrsel(Addrsel),
+    .RASel(RASel),
+    .RegIn(RegIn),
+    .IR(IR_out)
+);
+
 // Register File
 RF rf_inst(
     .RFWrite(RFWrite),
-    .regA(IR_out[4:2]),
-    .regB(IR_out[7:5]),
+    .regA(RASel ? IR_out[5:4] : IR_out[6:7]), // RASel controls regA source
+    .regB(IR_out[5:4]),
     .regw(IR_out[10:8]),
     .clock(clock),
     .reset(reset),
@@ -81,8 +94,8 @@ IR ir_inst(
 
 // ALU
 ALU alu_inst(
-    .A(A_out),
-    .B(M5),
+    .A(M4), // ALU A input from mux
+    .B(M5), // ALU B input from mux
     .ALUop(ALUop),
     .ALUout(ALUout),
     .Z(Z),
@@ -101,7 +114,7 @@ ALUout aluout_inst(
 // PC
 PC pc_inst(
     .PCWrite(PCWrite),
-    .ALUout(M4),
+    .ALUout(ALUout_reg), // Use ALUout register output
     .PC(PC),
     .clock(clock),
     .reset(reset)
@@ -118,40 +131,40 @@ Memory memory_inst(
     .data_out(mem_data_out)
 );
 
-// Muxes (example connections, adjust as needed for your control logic)
-// Address select mux: M1 = (addrsel) ? OpB : PC
+// Muxes with FSM control signals
+// Address select mux: M1 = (addrsel) ? ALUout_reg : PC
 addrsel_mux addr_mux_inst(
-    .addrsel(1'b0), // placeholder, connect to control
+    .addrsel(Addrsel),
     .PC(PC),
-    .OpB(B_out),
+    .OpB(ALUout_reg),
     .M1(M1)
 );
-// RegIn mux: M3 = (RegIn) ? MDR : ALUout
+
+// RegIn mux: M3 = (RegIn) ? MDR : ALUout_reg
 RegIn_mux regin_mux_inst(
-    .RegIn(1'b0), // placeholder, connect to control
+    .RegIn(RegIn),
     .MDR(MDR_out),
-    .ALUout(ALUout),
+    .ALUout(ALUout_reg),
     .M3(M3)
 );
-// ALU1 mux: M4 = (ALU1) ? OpA : PC
+
+// ALU1 mux: M4 = (ALUA) ? A_out : PC
 ALU1_mux alu1_mux_inst(
-    .ALU1(1'b0), // placeholder, connect to control
+    .ALU1(ALUA),
     .OpA(A_out),
     .PC(PC),
     .M4(M4)
 );
-// ALU2 mux: M5 = ...
+
+// ALU2 mux: M5 = ALU_B selects from B_out, constants, or immediates
 ALU2_mux alu2_mux_inst(
-    .ALU2(3'b000), // placeholder, connect to control
+    .ALU2(ALU_B),
     .OpB(B_out),
     .Imm4(Imm4),
     .Imm5(Imm5),
     .Imm3(Imm3),
     .M5(M5)
 );
-
-// FSM (not implemented, placeholder)
-// FSM fsm_inst(...); // TODO: implement FSM and connect all control signals
 
 endmodule
 
