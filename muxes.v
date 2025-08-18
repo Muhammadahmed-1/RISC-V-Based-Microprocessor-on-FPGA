@@ -25,7 +25,7 @@ module RegIn_mux (RegIn,MDR,ALUout,M3);
 
 endmodule
 
-module ALU_A_mux(ALUA,PC,OpB,M4);
+module ALU_A_mux(ALUA,OpA,PC,M4);
        input wire ALUA;
        input wire [7:0] OpA;
        input wire [7:0] PC;
@@ -48,7 +48,7 @@ module  ALU_B_mux(ALU_B,OpB,Imm4, Imm5,Imm3,M5);
             3'b001: M5 = 8'b01;
             3'b010: M5 = Imm4;
             3'b011: M5 = Imm5;
-            3'b100: M5 = Imm2; 
+            3'b100: M5 = Imm3; 
             default: M5 = 8'bxxxxxxxx;
         endcase
     end
