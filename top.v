@@ -1,6 +1,6 @@
 module top(clock,reset);
     input wire clock,
-    input wire reset
+    input wire reset;
 
 // Control signals from FSM
 wire RFWrite, MemWrite, MemRead, PCWrite, IRload, MDRload, ABLD, ALUoutLD;
@@ -146,7 +146,7 @@ RegIn_mux regin_mux_inst(
     .MDR(MDR_out),
     .ALUout(ALUout_reg),
     .M3(M3)
-);
+);  
 
 // ALU1 mux: M4 = (ALUA) ? A_out : PC
 ALU1_mux alu1_mux_inst(
